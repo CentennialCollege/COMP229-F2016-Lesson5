@@ -41,5 +41,36 @@ namespace COMP229_F2016_Lesson5
                 StudentsGridView.DataBind();
             }
         }
+
+        protected void StudentsGridView_RowDeleting(object sender, GridViewDeleteEventArgs e)
+        {
+            
+
+            // store which row was clicked
+            int selectedRow = e.RowIndex;
+
+            // get the selected StudentID using the Grid's DataKey collection
+            int StudentID = Convert.ToInt32(StudentsGridView.DataKeys[selectedRow].Values["StudentID"]);
+
+            // use EF and LINQ to find the selected student in the DB and remove it
+            using(ContosoContext db = new ContosoContext())
+            {
+                // create object ot the student clas and store the query inside of it
+                Student deletedStudent = (from studentRecords in db.Students
+                                          where studentRecords.StudentID == StudentID
+                                          select studentRecords).FirstOrDefault();
+
+                // remove the selected student from the db
+                db.Students.Remove(deletedStudent);
+
+                // save my changes back to the db
+                db.SaveChanges();
+
+                // refresh the grid
+                this.GetStudents();
+            }
+
+            
+        }
     }
 }
